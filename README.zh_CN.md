@@ -44,7 +44,7 @@ gasReporter: {
 
 ChainLink VRF
 
->本地测试需要自行部署ChinaLink的VRF模拟合约，并自行模拟回填操作，具体操作见[官方文档](https://docs.chain.link/vrf/v2/subscription/examples/test-locally)
+>本地测试需要自行部署ChainLink的VRF模拟合约，并自行模拟回填操作，具体操作见[官方文档](https://docs.chain.link/vrf/v2/subscription/examples/test-locally)
 
 开启本地bsc测试环境
 ```shell

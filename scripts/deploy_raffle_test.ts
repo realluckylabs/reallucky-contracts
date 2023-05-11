@@ -13,7 +13,7 @@ async function main() {
     const usdc = await USDC.deploy();
     console.log(`[USDC] Address : ${usdc.address}`);
 
-    //dep[loy ChianLink VRF Mock
+    //deploy ChainLink VRF Mock
     const Coordinator = await ethers.getContractFactory("VRFCoordinatorV2Mock");
     const coordinator = await Coordinator.deploy(_BASEFEE, _GASPRICELINK);
     await coordinator.deployed();
@@ -36,7 +36,7 @@ async function main() {
     await raffleRush.deployed();
     console.log(`[RuffleRush] Address : ${raffleRush.address}`);
 
-    //Chainlink VRF add Raffle consumer
+    //ChainLink VRF add Raffle consumer
     await coordinator.addConsumer(subscriptionId, raffleRush.address);
     console.log(`[Coordinator] addConsumer : Success`);
 }

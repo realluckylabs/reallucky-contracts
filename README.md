@@ -49,7 +49,7 @@ gasReporter: {
 
 ChainLink VRF
 
->For local testing, you need to deploy the ChinaLink VRF simulated contract yourself and execute the callback operation yourself. For specific operations, see the [official documentation](https://docs.chain.link/vrf/v2/subscription/examples/test-locally).
+>For local testing, you need to deploy the ChainLink VRF simulated contract yourself and execute the callback operation yourself. For specific operations, see the [official documentation](https://docs.chain.link/vrf/v2/subscription/examples/test-locally).
 
 Start the local bsc test environment
 ```shell
