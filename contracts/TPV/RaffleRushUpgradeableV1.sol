@@ -18,10 +18,10 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
     using AddressUpgradeable for address payable;
     using SafeMathUpgradeable for uint256;
     /**
-    Active - 正常抽奖
-    Claimable - 不可以抽奖，等待发起者赎回资金
-    Claimed - 发起者已经赎回资金【结束】
-    Frozen - 发起者没有赎回资金，且时间已经超过最后提款日，资金冻结【结束】
+    * Active - 正常抽奖
+    * Claimable - 不可以抽奖，等待发起者赎回资金
+    * Claimed - 发起者已经赎回资金【结束】
+    * Frozen - 发起者没有赎回资金，且时间已经超过最后提款日，资金冻结【结束】
     */
     enum RaffleState {Active, Claimable, Claimed, Frozen}
     enum RaffleType {Default, Random, Normal, Fun, Others}
@@ -182,9 +182,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         availableIncrease(_bonus, _sum);
         emit CreateRaffle(msg.sender, raffles[msg.sender].length - 1, _sum, _winners, _rType);
     }
-    /**
-    *回填中奖名单
-    */
+    /// 回填中奖名单
     function fillWinnerList(address sponsor, uint256 rid, string calldata ipfs) public {
         require(sponsor != address (0), "Invalid sponsor address");
         require(raffles[sponsor].length > rid, "No such raffle");
@@ -192,26 +190,22 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         require(raffles[sponsor][rid].deadline1 >= block.timestamp, "Draw date overdue");
         raffles[sponsor][rid].ipfsHash = ipfs;
     }
-    /**
-    * ChainLink回调
-    */
+    /// ChainLink回调
     function fulfillRandomWords(
         uint256 requestId,
         uint256[] memory randomWords
     ) internal override {
-        //获取调用者信息，address和数组id
+        /// 获取调用者信息，address和数组id
         if(callers[requestId].who != address(0)){
             if(raffles[callers[requestId].who].length > callers[requestId].index){
                 raffles[callers[requestId].who][callers[requestId].index].seed = randomWords[0];
             }
-            delete callers[requestId];//删除caller槽内的数据，节省gas
+            delete callers[requestId];/// 删除caller槽内的数据，节省gas
         }
         emit ReturnedRandomness(requestId, randomWords);
     }
 
-    /**
-    *获取中奖号码
-    */
+    /// 获取中奖号码
     function getRaffleResult(address sponsor, uint256 rid) public view returns (uint256[] memory){
         if(raffles[sponsor].length > rid){
             if(raffles[sponsor][rid].rType == RaffleType.Random){
@@ -236,9 +230,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
             return new uint256[](0);
         }
     }
-    /**
-    *获取指定人所有的抽奖的中奖号码
-    */
+    /// 获取指定人所有的抽奖的中奖号码
     function getRaffleResults(address sponsor) public view returns (uint256[][] memory){
         if(raffles[sponsor].length > 0){
             uint256 [][] memory randoms = new uint256[][](raffles[sponsor].length);
@@ -252,9 +244,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
             return new uint256[][](0);
         }
     }
-    /**
-    *获取指定人所有的抽奖信息
-    */
+    /// 获取指定人所有的抽奖信息
     function getRaffles(address sponsor) public view returns (Raffle[] memory){
         if(raffles[sponsor].length > 0){
             return raffles[sponsor];
@@ -262,9 +252,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
             return new Raffle[](0);
         }
     }
-    /**
-    *指定用户指定抽奖id开奖，中奖名单users
-    */
+    /// 指定用户指定抽奖id开奖，中奖名单users
     function draw(address sponsor, uint256 rid, address[] calldata users) public onlyOwner{
         require(sponsor != address (0), "Invalid sponsor address");
         require(raffles[sponsor].length > rid, "No such raffle");
@@ -284,13 +272,11 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
             IERC20Upgradeable(raffle.bonus).safeTransfer(address(users[i - start]), randoms[i]);
             raffles[sponsor][rid].picked = raffles[sponsor][rid].picked + randoms[i];
             raffles[sponsor][rid].pickedIndex = raffles[sponsor][rid].pickedIndex + 1;
-            availableDecrease(raffle.bonus, randoms[i]);//减少available
+            availableDecrease(raffle.bonus, randoms[i]);
             emit Draw(sponsor, rid, address(users[i - start]), randoms[i]);
         }
     }
-    /**
-    *给单个参与者开奖
-    **/
+    /// 给单个参与者开奖
     function drawSingle(address sponsor, uint256 rid, address user) public onlyOwner{
         require(sponsor != address (0), "Invalid sponsor address");
         require(raffles[sponsor].length > rid, "No such raffle");
@@ -305,33 +291,26 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         emit Draw(sponsor, rid, address(user), randoms[raffle.pickedIndex]);
         raffles[sponsor][rid].picked = raffles[sponsor][rid].picked + randoms[raffle.pickedIndex];
         raffles[sponsor][rid].pickedIndex = raffles[sponsor][rid].pickedIndex + 1;
-        availableDecrease(raffle.bonus, randoms[raffle.pickedIndex]);//减少available
+        availableDecrease(raffle.bonus, randoms[raffle.pickedIndex]);
 
     }
-    /**
-    清理指定的抽奖信息
-     */
+    /// 清理指定的抽奖信息
     function cleanRaffles(address sponsor, uint256 rid) public {
         require(raffles[sponsor].length > 0, "!sponsor");
         require(raffles[sponsor][rid].owner != address(0), "!rid");
         if(raffles[sponsor][rid].deadline2 < block.timestamp){
             if(raffles[sponsor][rid].sum > raffles[sponsor][rid].picked){
-                lockIncrease(raffles[sponsor][rid].bonus, raffles[sponsor][rid].sum - raffles[sponsor][rid].picked);//冻结当前bonus的余额
+                lockIncrease(raffles[sponsor][rid].bonus, raffles[sponsor][rid].sum - raffles[sponsor][rid].picked);
             }
-            //不清理
-//            if(raffles[sponsor].length > 1){
-//                raffles[sponsor][rid] = raffles[sponsor][raffles[sponsor].length - 1];
-//            }
-//            raffles[sponsor].pop();
-            raffles[sponsor][rid].rState = RaffleState.Frozen;//冻结了
+            raffles[sponsor][rid].rState = RaffleState.Frozen;
             emit CleanRaffle(msg.sender, sponsor, rid, raffles[sponsor][rid].sum - raffles[sponsor][rid].picked);
         }
     }
-    //可用资金增加（用户新增抽奖）
+
     function availableIncrease(address _token, uint256 _amount) internal {
         assetAvailable[_token] = assetAvailable[_token] + _amount;
     }
-    //可用资金减少（用户开奖或超过提现日期）
+
     function availableDecrease(address _token, uint256 _amount) internal {
         require(assetAvailable[_token] >= _amount, "Bad decrease amount");
         if(assetAvailable[_token] < _amount){
@@ -339,35 +318,24 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         }
         assetAvailable[_token] = assetAvailable[_token] - _amount;
     }
-    //锁定资金增加
+
     function lockIncrease(address _token, uint256 _amount) internal {
         availableDecrease(_token, _amount);
         assetLocked[_token] = assetLocked[_token] + _amount;
     }
-    //锁定资金减少（治理账户提现）
+
     function lockDecrease(address _token, uint256 _amount) internal {
-        //availableDecrease(_token, _amount);
         require(assetLocked[_token] >= _amount, "Bad unlock amount");
         assetLocked[_token] = assetLocked[_token] - _amount;
     }
+
     function govClaim(address _token) public onlyGov {
         require(address(_token) != address(0) && assetLocked[_token] > 0, "Insufficient balance");
         IERC20Upgradeable(_token).safeTransfer(govAddress, assetLocked[_token]);
         assetLocked[_token] = 0;
     }
-//    function govClaimExact(address _token, uint256 _amount) public onlyGov {
-//        require(address(_token) != address(0) && assetLocked[_token] >= _amount, "Insufficient balance");
-//        IERC20Upgradeable(_token).safeTransfer(govAddress, _amount);
-//        assetLocked[_token] = 0;
-//    }
-//    function govClaimETH(uint256 _amount) public onlyGov {
-//        payable(govAddress).sendValue(_amount);
-//    }
-//    function govClaimAll(address _token) public onlyGov {
-//        IERC20Upgradeable(_token).safeTransfer(govAddress, IERC20Upgradeable(_token).balanceOf(address (this)));
-//        assetLocked[_token] = 0;
-//    }
-    //治理账户赎回冻结资金
+
+    /// 治理账户赎回冻结资金
     function govMultiClaim(address[] calldata _tokens) public onlyGov {
         for(uint256 i = 0; i < _tokens.length; i++){
             address token = _tokens[i];
@@ -376,7 +344,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
             }
         }
     }
-    //发起者赎回剩余资金
+    /// 发起者赎回剩余资金
     function userClaim(uint256 rid) public {
         require(raffles[msg.sender].length > 0, "Invalid user");
         require(raffles[msg.sender][rid].owner == msg.sender, "Invalid rid");
@@ -389,22 +357,22 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         IERC20Upgradeable(raffles[msg.sender][rid].bonus).safeTransfer(msg.sender, claimable);
         availableDecrease(raffles[msg.sender][rid].bonus, claimable);
         raffles[msg.sender][rid].picked = raffles[msg.sender][rid].sum;
-        raffles[msg.sender][rid].rState = RaffleState.Claimed;//设置为已申索
+        raffles[msg.sender][rid].rState = RaffleState.Claimed;
         emit UserClaim(msg.sender, raffles[msg.sender][rid].bonus, claimable);
     }
-    //设置手续费开关
+
     function setFee(uint256 _fee) public onlyGov {
         require(_fee <= raffleConfig.feeCap, "!cap");
         raffleConfig.feePerWinner = _fee;
         emit SetFee(_fee);
     }
-    //设置手续费开关
+
     function setMaxWithdrawDelay(uint64 _delay) public onlyGov {
         require(_delay <= 7 days, "!cap");
         raffleConfig.maxWithdrawDelay = _delay;
         emit SetMaxWithdrawDelay(_delay);
     }
-    //设置最终提现日延迟天数
+
     function setMaxDrawDelay(uint64 _delay) public onlyGov {
         require(_delay <= 7 days, "!cap");
         raffleConfig.maxDrawDelay = _delay;
