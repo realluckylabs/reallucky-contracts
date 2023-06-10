@@ -4,9 +4,17 @@
 
 This is the smart contract code for the [reallucky.io](https://app.reallucky.io) project, which ensures a 100% match with the [deployed contract](https://bscscan.com/address/0xbbb1381e648c66ca10d2bb1ccea46993eef556c8) online, with no modification. At the same time, the source code of the contract has also been source code verified on [bscscan.com](https://bscscan.com/address/0xbbb1381e648c66ca10d2bb1ccea46993eef556c8#code).
 ## Deploy Details
-Binance Smart Chain
+Deployed on Binance Smart Chain
 
-    0xbbb1381e648c66ca10d2bb1ccea46993eef556c8
+upgradeable version [In Use]
+```dotenv
+ ProxyAddress   = 0xaF6C809408d9EE1E70809e20ab7547Cf59ed811e
+ AdminAddress   = 0x6cEdF5184096c6F41aBdc016A86F0853F47c2b34
+ Implementation = 0xB8930c0b140923632d0D8489cB7EE07F28BE9ff6
+```
+*~~non-upgradeable Version [Deprecated]~~*
+
+>~~0xbbb1381e648c66ca10d2bb1ccea46993eef556c8~~
 
 ## Getting Started
 

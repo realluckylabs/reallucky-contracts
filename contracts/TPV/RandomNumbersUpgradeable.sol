@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 library  RandomNumbers {
     using SafeMathUpgradeable for uint256;
-    // 生成随机数,total单位wei，min单位wei，count单位个
     function generateNumbers(uint256 str, uint256 total, uint256 min, uint256 count) internal pure returns (uint256[] memory) {
         require(count <= 1000, "count too large!!");
         bytes32 seed = keccak256(abi.encode(str));
@@ -28,6 +27,17 @@ library  RandomNumbers {
             opened = opened.add(raffle);
             results[i] = raffle.add(min);
         }
-        return results;
+        return shuffle(results, seed);
+    }
+    function shuffle(uint256[] memory _arr, bytes32 seed) internal pure returns(uint256[] memory) {
+        uint256[] memory arr = _arr;
+        uint256 N = arr.length;
+
+        for(uint256 i = N - 1; i > 0; i--) {
+            uint256 j = uint256(seed) % (i+1);
+            (arr[i], arr[j]) = (arr[j], arr[i]);
+        }
+
+        return arr;
     }
 }

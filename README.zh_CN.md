@@ -4,9 +4,17 @@
 这是[真抽奖](https://app.reallucky.io)项目的智能合约代码，代码保证与线上部署的[合约](https://bscscan.com/address/0xbbb1381e648c66ca10d2bb1ccea46993eef556c8)100%吻合，没有任何修改。
 同时合约的源码也已经在bscscan.com上进行了[源码验证](https://bscscan.com/address/0xbbb1381e648c66ca10d2bb1ccea46993eef556c8#code)
 ## 部署详情
-币安智能链
+部署在币安智能链
 
-    0xbbb1381e648c66ca10d2bb1ccea46993eef556c8
+可升级版本 [在用]
+```dotenv
+ ProxyAddress   = 0xaF6C809408d9EE1E70809e20ab7547Cf59ed811e
+ AdminAddress   = 0x6cEdF5184096c6F41aBdc016A86F0853F47c2b34
+ Implementation = 0xB8930c0b140923632d0D8489cB7EE07F28BE9ff6
+```
+*~~不可升级版本[废弃]~~*
+
+>~~0xbbb1381e648c66ca10d2bb1ccea46993eef556c8~~
 # 入门指南
 
 ## 先决条件

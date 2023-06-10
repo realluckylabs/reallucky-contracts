@@ -26,30 +26,30 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
     enum RaffleState {Active, Claimable, Claimed, Frozen}
     enum RaffleType {Default, Random, Normal, Fun, Others}
     struct Raffle {
-        address owner;//发起人
-        uint256 sum;//奖金总额
-        uint256 min;//最小中奖金额
-        uint256 picked;//已开奖金额
-        address bonus;//奖品
-        uint256 seed;//VRF返回的随机数
+        address owner;/// 发起人
+        uint256 sum;/// 奖金总额
+        uint256 min;/// 最小中奖金额
+        uint256 picked;/// 已开奖金额
+        address bonus;/// 奖品
+        uint256 seed;/// VRF返回的随机数
         string ipfsHash;
-        uint64 winners;//中奖人数
-        uint64 pickedIndex;//已开奖人数
-        uint64 startAt;//抽奖发起时间
-        uint64 deadline1;//发起人开奖窗口[startAt, deadline1 - startAt == 7 days]
-        uint64 deadline2;//最后提款窗口[deadline1, deadline2]{deadline1 - deadline2 == 7 days}
-        RaffleType rType;//开奖类型
-        RaffleState rState;//抽奖状态
-        uint256[] eUint;
-        address[] eAddr;
-        string[] eStr;
+        uint64 winners;/// 中奖人数
+        uint64 pickedIndex;/// 已开奖人数
+        uint64 startAt;/// 抽奖发起时间
+        uint64 deadline1;/// 发起人开奖窗口[startAt, deadline1]
+        uint64 deadline2;/// 最后提款窗口(deadline1, deadline2]
+        RaffleType rType;/// 开奖类型
+        RaffleState rState;/// 抽奖状态
+        uint256[] eUint;/// 预留
+        address[] eAddr;/// 预留
+        string[] eStr;/// 预留
     }
-    //用于ChainLink的回调
+    /// 用于ChainLink的回调
     struct Caller{
         address who;
         uint256 index;
     }
-    //合约配置
+    /// 合约配置
     struct RaffleConfig {
         uint256 feeCap;
         uint256 feePerWinner;
@@ -57,7 +57,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         uint64 maxWithdrawDelay;
         uint64 maxDrawDelay;
     }
-    //ChainLink 相关
+    /// ChainLink 相关
     struct ChainLinkConfig {
         VRFCoordinatorV2Interface coordinator;
         uint256 lastRequestId;
@@ -69,9 +69,7 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
     }
 
     ChainLinkConfig public chainLinkConfig;
-    //合约
     RaffleConfig public raffleConfig;
-    //所有的开奖信息
     mapping(address => Raffle[]) public raffles;
     mapping(uint256 => Caller) public callers;
     mapping(address => uint256) public assetAvailable;
@@ -103,9 +101,9 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
 
         raffleConfig.feeCap = 88000 gwei;
         raffleConfig.feePerWinner = 0 gwei;
-        raffleConfig.maxWinners = 200;//Slot6
-        raffleConfig.maxWithdrawDelay = 604800;//7天单位秒 Slot6
-        raffleConfig.maxDrawDelay = 604800;//7天单位秒 Slot6
+        raffleConfig.maxWinners = 200;
+        raffleConfig.maxWithdrawDelay = 604800;
+        raffleConfig.maxDrawDelay = 604800;
     }
     function isTypeValid(RaffleType _type) internal pure returns (bool) {
         return _type == RaffleType.Random || _type == RaffleType.Normal;
@@ -126,11 +124,10 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         if(msg.sender.isContract()){
             revert('!EOA');
         }
-        //Approve Check
+        /// Approve Check
         if(IERC20Upgradeable(_bonus).allowance(msg.sender, address(this)) < _sum){
             revert('!approve');
         }
-        //发起者账户余额要大于_sum
         if(IERC20Upgradeable(_bonus).balanceOf(msg.sender) < _sum){
             revert('Insufficient amount!');
         }
@@ -142,12 +139,12 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
         if(raffleConfig.feePerWinner > 0){
             payable(govAddress).sendValue(msg.value);
         }
-        //增加可消费额度
+        /// 增加可消费额度
         IERC20Upgradeable(_bonus).safeIncreaseAllowance(address(this), _sum);
-        //从发起者账户转账
+        /// 从发起者账户转账
         IERC20Upgradeable(_bonus).safeTransferFrom(msg.sender, address(this), _sum);
 
-        //给用户新增一个抽奖实例
+        /// 给用户新增一个抽奖实例
         raffles[msg.sender].push(Raffle({
             owner: msg.sender,
             bonus: _bonus,
@@ -176,13 +173,13 @@ contract RaffleRushUpgradeableV1 is Initializable, RaffleGovUpgradeable, VRFCons
                 chainLinkConfig.callbackGasLimit,
                 chainLinkConfig.numWords
             );
-            //记录请求信息
+            /// 记录请求信息
             callers[chainLinkConfig.lastRequestId] = Caller({
                 who:msg.sender,
                 index:raffles[msg.sender].length - 1
             });
         }
-        availableIncrease(_bonus, _sum);//增加available
+        availableIncrease(_bonus, _sum);
         emit CreateRaffle(msg.sender, raffles[msg.sender].length - 1, _sum, _winners, _rType);
     }
     /**
