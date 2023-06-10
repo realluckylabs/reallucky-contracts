@@ -64,11 +64,11 @@ Run commands
 npx hardhat compile
 
 #Execute ts script under scripts, use local environment
-npx hardhat run ./scripts/deploy_raffle.ts --network localhost
+npx hardhat run ./scripts/deploy_raffle_upgradeable.ts --network localhost
 
 #If you want to use other environments, just specify the environment alias after --network, environment aliases are defined in the config of hardhat.config.ts
 #For example, if you want to deploy and execute the contract on bsctest, you can run
-npx hardhat run ./scripts/deploy_raffle.ts --network bsctest
+npx hardhat run ./scripts/deploy_raffle_upgradeable.ts --network bsctest
 ```
 Run test script
 ```shell
@@ -84,15 +84,15 @@ npx hardhat test ./test/RaffleRush.ts --network bsctest
 
 **Before deployment**
 
->You need to create a subscription in ChainLink’s background, then fill in the subscription id and coordinator address in the deployment scriptscripts/deploy_raffle.ts  
+>You need to create a subscription in ChainLink’s background, then fill in the subscription id and coordinator address in the deployment scriptscripts/deploy_raffle_upgradeable.ts  
 >[Official documentation](https://docs.chain.link/vrf/v2/subscription)
 
 Deploy
 ```shell
-npx hardhat run ./scripts/deploy_raffle.ts --network bsc
+npx hardhat run ./scripts/deploy_raffle_upgradeable.ts --network bsc
 ```
-The contract address printed on the console is the contract address you deployed this time.
+The proxy address printed on the console is the contract address you deployed this time.
 
 **After deployment**
 
->Remember to add the deployed address to ChainLink’s consumer list
+>Remember to add the proxy address to ChainLink’s consumer list

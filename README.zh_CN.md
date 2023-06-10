@@ -59,11 +59,11 @@ npx hardhat node --fork bsc
 npx hardhat compile
 
 #执行scripts下的ts脚本，使用本地环境
-npx hardhat run ./scripts/deploy_raffle.ts --network localhost
+npx hardhat run ./scripts/deploy_raffle_upgradeable.ts --network localhost
 
 #如果想使用其他的环境则在--network后面制定环境别名即可，环境别名在hardhat.config.ts的config中定义
 #例如想在bsctest上部署和执行合约可以执行
-npx hardhat run ./scripts/deploy_raffle.ts --network bsctest
+npx hardhat run ./scripts/deploy_raffle_upgradeable.ts --network bsctest
 ```
 
 运行测试脚本
@@ -81,14 +81,14 @@ npx hardhat test ./test/RaffleRush.ts --network bsctest
 **部署前**
 
 >需要你在ChainLink的后台创建订阅，然后将订阅id和coordinator地址填写到部署脚本中  
->scripts/deploy_raffle.ts  
+>scripts/deploy_raffle_upgradeable.ts  
 >[官方文档](https://docs.chain.link/vrf/v2/subscription)
 
 部署合约
 ```shell
-npx hardhat run ./scripts/deploy_raffle.ts --network bsc
+npx hardhat run ./scripts/deploy_raffle_upgradeable.ts --network bsc
 ```
-控制台打印的合约地址即为你本次部署的合约地址
+控制台打印的proxy address即为你本次部署的合约地址
 
 **部署后**
 > 记得将打印的部署地址添加到ChainLink的消费者列表里

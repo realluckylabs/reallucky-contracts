@@ -2,6 +2,7 @@ import "./tasks";
 import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import "@openzeppelin/hardhat-upgrades";
 import { buildHardhatNetworkAccounts, getPKs } from "./utils/configInit";
 const accounts = getPKs();
 const hardhatNetworkAccounts = buildHardhatNetworkAccounts(accounts);
@@ -13,6 +14,11 @@ const config: HardhatUserConfig = {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
       // gasPrice: 20000000000,
+      accounts,
+    },
+    goerli: {
+      url: process.env.GOERLI_TEST_RPC || "https://goerli.infura.io/v3/67fe59262701484ba85979abf6b7937b",
+      chainId: 5,
       accounts,
     },
     hardhat: {
